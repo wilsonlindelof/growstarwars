@@ -26,7 +26,8 @@ router.use(function(req, res, next) {
 router.use(bodyParser.json());	
 
 //routes	
-router.get('/hello', characters.hello);	
+router.get('/hello', characters.hello);
+router.get('/characters', characters.retrieve_characters);	
 
 
 app.use('/api', router);
