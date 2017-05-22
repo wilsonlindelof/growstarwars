@@ -21,8 +21,7 @@ var query_api = function api_query(url) {
 			if (error) {
 				console.log(error);
 				reject(error);
-			} else {
-				console.log(body);
+			} else {				
 				var parsed_object = JSON.parse(body);
 				resolve(parsed_object);
 			}
@@ -31,38 +30,56 @@ var query_api = function api_query(url) {
 	});
 }
 
+function sort_characters(characters, param) {
+	if (param == 'mass' || param == 'height') {
+		return characters.sort(function(a, b) {
+			return a[param] - b[param];
+		});
+	} else {
+		return characters.sort(function(a, b) {			
+			return a[param].localeCompare(b[param]);
+		});
+	}
+	
+			
+}
+
 function retrieve_characters(req, res, next) {
 	
-	console.log('retrieve characters');
+	console.log('retrieve characters');	
 	
 	var urls = [];
 	var url_promises = [];
-	for (var i = 0; i < 50; i++) {
+	for (var i = 0; i < 80; i++) {
 		var url = 'http://swapi.co/api/people/' + i + '/';
 		urls.push(url);
 		url_promises.push(query_api(url));
 	}
 	
-	var characters = [];	
-	/*for (var i = 0; i < urls.length; i++) {
-		var url = urls[i];
-		
-	}*/
+	var characters = [];		
 	var results = Promise.all(url_promises);
 	
 	results.then(function(data) {
-		console.log(data);
+		
+		for (var i = 0; i < data.length; i++) {
+			var character = data[i];
+			if (!(character['detail']) && characters.length < 50) { //detail is only on the "Not Found" results
+				characters.push(character);
+			}
+		}
+		
+		if (req.query['sort']) {			
+			characters = sort_characters(characters, req.query['sort']);			
+		}		
+		
 		res.status(200)
 			.json({
 				status: 'success',
-				data: data,
+				data: characters,
 				message: 'Characters retrieved'
 			});
 	});
 	
-	//console.log(characters);
-	//console.log("returning now");
-		
 }
 
 module.exports = {
