@@ -1,0 +1,14 @@
+{
+  "name": "growstarwars",
+  "version": "0.0.1",
+  "main": "server.js",
+  "description": "Star Wars API Wrapper",  
+  "dependencies": {
+    "express": "^4.14.0",	
+	"bluebird": "3.4.6",
+	"body-parser": "1.15.2"		
+  },
+  "engines": {
+    "node": "6.6.0"
+  }
+}
