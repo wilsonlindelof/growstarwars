@@ -47,12 +47,10 @@ function sort_characters(characters, param) {
 function retrieve_characters(req, res, next) {
 	
 	console.log('retrieve characters');	
-	
-	var urls = [];
+		
 	var url_promises = [];
 	for (var i = 0; i < 80; i++) {
-		var url = 'http://swapi.co/api/people/' + i + '/';
-		urls.push(url);
+		var url = 'http://swapi.co/api/people/' + i + '/';		
 		url_promises.push(query_api(url));
 	}
 	
@@ -78,11 +76,74 @@ function retrieve_characters(req, res, next) {
 				data: characters,
 				message: 'Characters retrieved'
 			});
+	}, function (error) {
+		console.log("api error");
+		
+		res.status(500)
+			.json({
+				status: 'failed',
+				data: error,
+				message: 'Server Error - Request'
+			})
+		
+	});
+	
+}
+
+function retrieve_character(req, res, next) {
+	
+	console.log('retrieve character');
+	var name = req.params.name;	
+		
+	var url_promises = [];
+	for (var i = 0; i < 100; i++) {//this makes it execute slower since it takes a while to return a "Not Found" for some of them, but I did it this way to be sure I grabbed all possible matches for the name
+		var url = 'http://swapi.co/api/people/' + i + '/';		
+		url_promises.push(query_api(url));
+	}
+	
+	var characters = [];		
+	var results = Promise.all(url_promises);
+	
+	results.then(function(data) {
+				
+		for (var i = 0; i < data.length; i++) {
+			var character = data[i];			
+			if (character['name'] && character['name'].toUpperCase().indexOf(name.toUpperCase()) != -1) {
+				console.log(character);
+				//need to return in ejs
+				res.status(200)
+					.json({
+						status: 'success',
+						data: character,
+						message: 'Character retrieved'
+					});
+				return;
+			}
+		}
+		
+		res.status(500)
+			.json({
+				status: 'failed',
+				data: [],
+				message: 'Server Error - Request'
+			});
+		
+	}, function (error) {
+		console.log("api error");
+		
+		res.status(500)
+			.json({
+				status: 'failed',
+				data: error,
+				message: 'Server Error - Request'
+			})
+		
 	});
 	
 }
 
 module.exports = {
 	hello: hello,
-	retrieve_characters: retrieve_characters
+	retrieve_characters: retrieve_characters,
+	retrieve_character: retrieve_character
 };

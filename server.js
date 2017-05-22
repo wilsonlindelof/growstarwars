@@ -27,7 +27,8 @@ router.use(bodyParser.json());
 
 //routes	
 router.get('/hello', characters.hello);
-router.get('/characters', characters.retrieve_characters);	
+router.get('/characters', characters.retrieve_characters);
+router.get('/character/:name', characters.retrieve_character);		
 
 
 app.use('/api', router);
