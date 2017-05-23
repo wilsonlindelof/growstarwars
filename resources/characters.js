@@ -49,7 +49,7 @@ function retrieve_characters(req, res, next) {
 	console.log('retrieve characters');	
 		
 	var url_promises = [];
-	for (var i = 0; i < 80; i++) {
+	for (var i = 0; i < 60; i++) {
 		var url = 'http://swapi.co/api/people/' + i + '/';		
 		url_promises.push(query_api(url));
 	}
@@ -85,6 +85,42 @@ function retrieve_characters(req, res, next) {
 				data: error,
 				message: 'Server Error - Request'
 			})
+		
+	});
+	
+}
+
+//used by planetresidents
+function retrieve_all_characters() {
+	
+	return new Promise(function(resolve, reject){
+	
+		console.log('retrieve all characters');	
+			
+		var url_promises = [];
+		for (var i = 0; i < 100; i++) {
+			var url = 'http://swapi.co/api/people/' + i + '/';		
+			url_promises.push(query_api(url));
+		}
+		
+		var characters = [];		
+		var results = Promise.all(url_promises);
+		
+		results.then(function(data) {
+			
+			for (var i = 0; i < data.length; i++) {
+				var character = data[i];
+				if (!(character['detail'])) { //detail is only on the "Not Found" results
+					characters.push(character);
+				}
+			}
+			
+			resolve(characters);
+			
+		}, function (error) {
+			console.log("api error");		
+			reject(error);		
+		});
 		
 	});
 	
@@ -145,5 +181,6 @@ function retrieve_character(req, res, next) {
 module.exports = {
 	hello: hello,
 	retrieve_characters: retrieve_characters,
-	retrieve_character: retrieve_character
+	retrieve_character: retrieve_character,
+	retrieve_all_characters: retrieve_all_characters
 };

@@ -6,7 +6,8 @@ var app = express();
 var bodyParser = require('body-parser');
 
 //resource files
-var characters = require('./resources/characters');	
+var characters = require('./resources/characters');
+var planets = require('./resources/planets');	
 
 
 var router = express.Router();
@@ -28,7 +29,8 @@ router.use(bodyParser.json());
 //routes	
 router.get('/hello', characters.hello);
 router.get('/characters', characters.retrieve_characters);
-router.get('/character/:name', characters.retrieve_character);		
+router.get('/character/:name', characters.retrieve_character);
+router.get('/planetresidents', planets.planetresidents);		
 
 
 app.use('/api', router);
