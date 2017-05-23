@@ -139,29 +139,61 @@ function retrieve_character(req, res, next) {
 	
 	var characters = [];		
 	var results = Promise.all(url_promises);
+	var chosen_one = {};
 	
 	results.then(function(data) {
 				
 		for (var i = 0; i < data.length; i++) {
 			var character = data[i];			
-			if (character['name'] && character['name'].toUpperCase().indexOf(name.toUpperCase()) != -1) {
-				console.log(character);
-				//need to return in ejs
-				res.status(200)
-					.json({
-						status: 'success',
-						data: character,
-						message: 'Character retrieved'
-					});
-				return;
+			if (character['name'] && character['name'].toUpperCase().indexOf(name.toUpperCase()) != -1) {				
+				chosen_one = character;
+				return query_api(character['homeworld']);
 			}
-		}
+		}				
+		
+		res.status(404)
+			.json({
+				status: 'failed',
+				data: [],
+				message: 'Error - Character Not Found'
+			});
+		
+	}, function (error) {
+		console.log("api error");
 		
 		res.status(500)
 			.json({
 				status: 'failed',
-				data: [],
+				data: error,
 				message: 'Server Error - Request'
+			})
+		
+	})
+	.then(function(data) {
+				
+		chosen_one['homeworld_name'] = data['name']
+				
+		return query_api(chosen_one['species'][0]);//why is species an array?		
+		
+	}, function (error) {
+		console.log("api error");
+		
+		res.status(500)
+			.json({
+				status: 'failed',
+				data: error,
+				message: 'Server Error - Request'
+			})
+		
+	})
+	.then(function(data) {
+		
+		//If you wanted to unpack the rest of the data from the character sheet like films, vehicles, spaceships just follow this pattern
+		chosen_one['species_name'] = data['name']
+				
+		//the ejs is really "nothing too fancy"
+		res.render('pages/character', {
+				character: chosen_one
 			});
 		
 	}, function (error) {

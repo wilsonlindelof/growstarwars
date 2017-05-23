@@ -11,6 +11,7 @@ var planets = require('./resources/planets');
 
 
 var router = express.Router();
+app.set('view engine', 'ejs');
 
 console.log("Starting server");
 
